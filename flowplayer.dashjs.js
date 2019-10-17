@@ -424,6 +424,12 @@
                                     case "BUFFER_LEVEL_STATE_CHANGED":
                                         common.toggleClass(root, "is-seeking", e.state === "bufferStalled");
                                         break;
+                                    case "PLAYBACK_NOT_ALLOWED":
+                                        if (!conf.mutedAutoplay) throw new Error('Unable to autoplay');
+                                        player.debug('Play errored, trying muted', e);
+                                        player.mute(true, true);
+                                        player.play();
+                                        break;                                        
                                     case "ERROR":
                                         switch (e.error) {
                                         case "capability":
@@ -498,6 +504,14 @@
                         volume: function (level) {
                             if (videoTag) {
                                 videoTag.volume = level;
+                                if (level) player.mute(false);
+                            }
+                        },
+                        
+                        mute: function (flag) {
+                            if (videoTag) {                                
+                                videoTag.muted = !!flag;
+                                if( !!flag ) videoTag.volume = 0;
                             }
                         },
 
